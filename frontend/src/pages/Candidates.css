@@ -1,0 +1,36 @@
+/* Candidates page styles */
+.candidates-section {
+  padding: 2rem;
+}
+.candidates-table-container {
+  overflow-x: auto;
+}
+.candidates-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.candidates-table th, .candidates-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+}
+.candidates-table th {
+  background: #f7f7f7;
+  font-weight: 600;
+}
+.candidates-table tr:last-child td {
+  border-bottom: none;
+}
+.btn-primary {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+.btn-primary:hover {
+  background: #0056b3;
+}

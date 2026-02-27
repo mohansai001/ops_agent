@@ -1,0 +1,22 @@
+.project-feedback-section {
+  padding: 2rem;
+}
+.feedback-table-container {
+  margin-top: 1.5rem;
+  overflow-x: auto;
+}
+.feedback-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.feedback-table th, .feedback-table td {
+  border: 1px solid #e0e0e0;
+  padding: 0.5rem 1rem;
+  text-align: left;
+}
+.feedback-table th {
+  background: #f7f7f7;
+  font-weight: 600;
+}

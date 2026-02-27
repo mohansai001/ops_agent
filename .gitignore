@@ -1,0 +1,54 @@
+
+# Node.js
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+.Python
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+backend/.env
+frontend/.env
+
+# Build
+/dist
+/build
+frontend/build/
+backend/dist/
+
+# Misc
+*.swp
+*.swo
+.idea/
+.vscode/
+*~
+
+# Exclude local files
+*.local
+
+# Exclude coverage
+coverage/
+
+# Exclude test output
+env/
+
+# Exclude by user
+*.bak
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+ENV/
