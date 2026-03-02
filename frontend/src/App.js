@@ -94,29 +94,24 @@ function App() {
     setError(null);
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('rrf_file', file);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/upload/rrf`, formData, {
+      const response = await axios.post('http://127.0.0.1:8000/upload-files', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setRrfCount(response.data.count);
-      if (response.data.warnings && response.data.warnings.length > 0) {
-        setWarnings(response.data.warnings);
-      } else {
+      if (response.data.success) {
         setWarnings([]);
+        toast.success(`RRF file uploaded successfully! ${response.data.file_info.rrf_file.filename}`);
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        setError(response.data.message || 'Failed to upload RRF file');
       }
-      alert(`RRF file uploaded successfully! ${response.data.count} records processed.`);
       fetchCounts();
     } catch (err) {
-      if (err.response?.data?.errors) {
-        setError(err.response.data.errors.join('; '));
-        setWarnings(err.response.data.warnings || []);
-      } else {
-        setError(err.response?.data?.error || 'Failed to upload RRF file');
-      }
+      setError(err.response?.data?.error || 'Failed to upload RRF file');
       console.error('Error uploading RRF file:', err);
     } finally {
       setUploadingRrf(false);
@@ -132,29 +127,24 @@ function App() {
     setError(null);
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('bench_file', file);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/upload/bench`, formData, {
+      const response = await axios.post('http://127.0.0.1:8000/upload-files', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setBenchCount(response.data.count);
-      if (response.data.warnings && response.data.warnings.length > 0) {
-        setWarnings(response.data.warnings);
-      } else {
+      if (response.data.success) {
         setWarnings([]);
+        toast.success(`Bench file uploaded successfully! ${response.data.file_info.bench_file.filename}`);
+        setTimeout(() => window.location.reload(), 1200);
+      } else {
+        setError(response.data.message || 'Failed to upload Bench file');
       }
-      alert(`Bench file uploaded successfully! ${response.data.count} records processed.`);
       fetchCounts();
     } catch (err) {
-      if (err.response?.data?.errors) {
-        setError(err.response.data.errors.join('; '));
-        setWarnings(err.response.data.warnings || []);
-      } else {
-        setError(err.response?.data?.error || 'Failed to upload Bench file');
-      }
+      setError(err.response?.data?.error || 'Failed to upload Bench file');
       console.error('Error uploading Bench file:', err);
     } finally {
       setUploadingBench(false);
