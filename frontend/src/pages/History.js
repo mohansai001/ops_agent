@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import Loader from '../components/Loader';
 
-const History = ({ historyData }) => (
+const History = ({ historyData }) => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (historyData) setLoading(false);
+  }, [historyData]);
+
+  if (loading) return <Loader message="Loading history..." />;
+
+  return (
   <section className="history-section">
     <div className="history-table-container">
       <table className="history-table">
@@ -27,6 +37,7 @@ const History = ({ historyData }) => (
       </table>
     </div>
   </section>
-);
+  );
+};
 
 export default History;

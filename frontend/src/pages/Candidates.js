@@ -5,6 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 import axios from 'axios';
+import Loader from '../components/Loader';
 import './Candidates.css';
 
 
@@ -13,44 +14,39 @@ const Candidates = ({ statuses, handleCandidateTableChange, handleCandidateSave 
   const [positions, setPositions] = useState([]); // Will hold rrf_id list
   const [accounts, setAccounts] = useState([]);
   const [rrfMap, setRrfMap] = useState({}); // rrf_id -> rrf object
+  const [loading, setLoading] = useState(true);
   // No need for rrfSearch with react-select
 
   useEffect(() => {
-    // Fetch candidates
-    axios.get('http://127.0.0.1:8000/candidates')
-      .then(res => {
-        // If response is { candidates: [...] }, extract names only
-        let arr = [];
-        if (Array.isArray(res.data)) {
-          arr = res.data;
-        } else if (res.data && Array.isArray(res.data.candidates)) {
-          arr = res.data.candidates;
-        }
-  // Only keep vamid and name for each candidate
-  setCandidatesTableData(arr.map(c => ({ vamid: c.vamid, name: c.name })));
-      })
-      .catch(() => setCandidatesTableData([]));
-    // Fetch RRFs for positions and accounts
-    axios.get('http://127.0.0.1:8000/rrf')
-      .then(res => {
-        let rrfList = [];
-        if (Array.isArray(res.data)) {
-          rrfList = res.data;
-        } else if (res.data && Array.isArray(res.data.rrf)) {
-          rrfList = res.data.rrf;
-        }
-        setPositions([...new Set(rrfList.map(r => r.rrf_id).filter(Boolean))]);
-        setAccounts([...new Set(rrfList.map(r => r.account).filter(Boolean))]);
-        // Build rrf_id -> rrf object map
-        const map = {};
-        rrfList.forEach(r => { if (r.rrf_id) map[r.rrf_id] = r; });
-        setRrfMap(map);
-      })
-      .catch(() => {
-        setPositions([]);
-        setAccounts([]);
-        setRrfMap({});
-      });
+    Promise.all([
+      axios.get('http://127.0.0.1:8000/candidates'),
+      axios.get('http://127.0.0.1:8000/rrf')
+    ]).then(([candidatesRes, rrfRes]) => {
+      let arr = [];
+      if (Array.isArray(candidatesRes.data)) {
+        arr = candidatesRes.data;
+      } else if (candidatesRes.data && Array.isArray(candidatesRes.data.candidates)) {
+        arr = candidatesRes.data.candidates;
+      }
+      setCandidatesTableData(arr.map(c => ({ vamid: c.vamid, name: c.name })));
+      
+      let rrfList = [];
+      if (Array.isArray(rrfRes.data)) {
+        rrfList = rrfRes.data;
+      } else if (rrfRes.data && Array.isArray(rrfRes.data.rrf)) {
+        rrfList = rrfRes.data.rrf;
+      }
+      setPositions([...new Set(rrfList.map(r => r.rrf_id).filter(Boolean))]);
+      setAccounts([...new Set(rrfList.map(r => r.account).filter(Boolean))]);
+      const map = {};
+      rrfList.forEach(r => { if (r.rrf_id) map[r.rrf_id] = r; });
+      setRrfMap(map);
+    }).catch(() => {
+      setCandidatesTableData([]);
+      setPositions([]);
+      setAccounts([]);
+      setRrfMap({});
+    }).finally(() => setLoading(false));
   }, []);
 
   // Local state for table edits
@@ -100,6 +96,8 @@ const Candidates = ({ statuses, handleCandidateTableChange, handleCandidateSave 
       handleCandidateSave(row);
     }
   };
+
+  if (loading) return <Loader message="Loading candidates..." />;
 
   return (
     <section className="candidates-section">

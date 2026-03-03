@@ -1,4 +1,126 @@
-/* Upload page styles */
+/* Make file input buttons visible and styled */
+.upload-file-btn {
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+.file-input-label {
+  position: relative;
+  display: inline-block;
+  width: 220px;
+  height: 48px;
+  background: #f0f4f8;
+  border-radius: 8px;
+  text-align: center;
+  line-height: 48px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #007bff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  margin-top: 18px;
+  margin-bottom: 8px;
+  border: 1px solid #e3e3e3;
+  transition: background 0.2s, color 0.2s;
+}
+.file-input-label:hover {
+  background: #e3eaf3;
+  color: #0056b3;
+}
+.upload-file-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  color: #007bff;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 48px;
+  opacity: 1;
+}
+.upload-file-btn:disabled + .upload-file-label {
+  color: #bbb;
+  background: #f7f7f7;
+  cursor: not-allowed;
+}
+/* Upload page custom styles for dropdown and table */
+.analyze-section {
+  margin-bottom: 32px;
+  background: #f7f9fa;
+  border-radius: 8px;
+  padding: 24px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.analyze-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+.dropdown-search {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-size: 15px;
+  width: 180px;
+}
+.styled-dropdown {
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-size: 15px;
+  background: #fff;
+  min-width: 180px;
+}
+.styled-analyze-btn {
+  padding: 7px 18px;
+  border-radius: 6px;
+  font-size: 15px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.styled-analyze-btn:disabled {
+  background: #b3d1ff;
+  cursor: not-allowed;
+}
+.analyze-results-table {
+  margin-top: 18px;
+}
+.analyze-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+.analyze-table th, .analyze-table td {
+  border: 1px solid #e3e3e3;
+  padding: 10px 8px;
+  text-align: left;
+  font-size: 15px;
+}
+.analyze-table th {
+  background: #f0f4f8;
+  font-weight: 600;
+}
+.analyze-table tr:nth-child(even) {
+  background: #f9fbfc;
+}
+.analyze-error {
+  color: #d32f2f;
+  margin-top: 8px;
+  font-size: 15px;
+}/* Upload page styles */
 .upload-section {
   padding: 2rem;
 }

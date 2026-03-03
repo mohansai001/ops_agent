@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import Loader from '../components/Loader';
 
 // Helper to group matches by RRF (position)
 function groupByRRF(matches) {
@@ -19,6 +20,14 @@ function groupByRRF(matches) {
 const Matches = ({
   rrfCount, benchCount, useEnhancedMatching, setUseEnhancedMatching, handleMatchCandidates, matching, matches, handleDownloadExcel
 }) => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (rrfCount !== undefined && benchCount !== undefined) setLoading(false);
+  }, [rrfCount, benchCount]);
+
+  if (loading) return <Loader message="Loading matches..." />;
+
   // Expect matches to be the array from ai_matching.gemini_analysis.matches
   const groupedRRFs = groupByRRF(matches);
   return (

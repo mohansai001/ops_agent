@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import './App.css';
+import logo from './assets/ValueMomentum_logo.png';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Candidates from './pages/Candidates';
@@ -33,6 +33,7 @@ function App() {
   const [useEnhancedMatching, setUseEnhancedMatching] = useState(true);
   const [uploadHistory, setUploadHistory] = useState([]);
   const [trends, setTrends] = useState(null);
+  const [loading, setLoading] = useState(true);
   // Remove activeSection, use routing instead
   // For Candidates Table
   const [candidatesTableData, setCandidatesTableData] = useState([]);
@@ -311,13 +312,43 @@ function App() {
     }
   };
 
+  useEffect(() => {
+    // Wait for all initial data to load before showing content
+    Promise.all([
+      axios.get(`${API_BASE_URL}/counts`),
+      axios.get(`${API_BASE_URL}/bench`),
+      axios.get(`${API_BASE_URL}/rrf`)
+    ]).then(() => {
+      setLoading(false);
+    }).catch(() => {
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="global-loader" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#2f3b4a' }}>
+        <img src={logo} alt="ValueMomentum Logo" style={{ height: '48px', marginBottom: '24px' }} />
+        <div className="spinner" style={{ width: '48px', height: '48px', border: '6px solid #fff', borderTop: '6px solid #007bff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <div style={{ color: '#fff', marginTop: '18px', fontSize: '18px', fontWeight: 500 }}>Loading...</div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <div className="app">
         <ToastContainer position="top-right" autoClose={1200} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
         <div className={`sidebar${sidebarCollapsed ? ' collapsed' : ''}`}>
           <div className="sidebar-header">
-            <h2 style={{ display: sidebarCollapsed ? 'none' : 'block' }}>Ops Agent</h2>
+            <img src={logo} alt="ValueMomentum Logo" style={{ height: '48px', marginBottom: '12px', display: sidebarCollapsed ? 'none' : 'block' }} />
+            <h2 style={{ display: sidebarCollapsed ? 'none' : 'block' }}></h2>
             <button
               className="sidebar-toggle"
               onClick={() => setSidebarCollapsed((prev) => !prev)}
@@ -328,23 +359,17 @@ function App() {
             </button>
           </div>
           <nav className="sidebar-nav">
-              <Link to="/candidates" className="nav-item" title="Candidates">
-                {sidebarCollapsed ? '👤' : 'Candidates'}
-              </Link>
               <Link to="/dashboard" className="nav-item" title="Dashboard">
                 {sidebarCollapsed ? '🏠' : 'Dashboard'}
+              </Link>
+              <Link to="/candidates" className="nav-item" title="Candidates">
+                {sidebarCollapsed ? '👤' : 'Candidates'}
               </Link>
               <Link to="/upload" className="nav-item" title="Upload Files">
                 {sidebarCollapsed ? '⬆️' : 'Upload Files'}
               </Link>
               <Link to="/matches" className="nav-item" title="Matches">
                 {sidebarCollapsed ? '🔗' : 'Matches'}
-              </Link>
-              <Link to="/history" className="nav-item" title="History">
-                {sidebarCollapsed ? '🕑' : 'History'}
-              </Link>
-              <Link to="/trends" className="nav-item" title="Trends">
-                {sidebarCollapsed ? '📈' : 'Trends'}
               </Link>
               <Link to="/project-feedback" className="nav-item" title="Project Feedback">
                 {sidebarCollapsed ? '📝' : 'Project Feedback'}

@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [benchRows, setBenchRows] = useState([]);
   const [loadingRrf, setLoadingRrf] = useState(false);
   const [loadingBench, setLoadingBench] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     axios.get('http://127.0.0.1:8000/dashboard')
@@ -18,10 +19,12 @@ const Dashboard = () => {
         const val = res.data && res.data.value ? res.data.value : {};
         setBenchCount(val.bench_count || 0);
         setRrfCount(val.rrf_count || 0);
+        setInitialLoading(false);
       })
       .catch(() => {
         setBenchCount(0);
         setRrfCount(0);
+        setInitialLoading(false);
       });
   }, []);
 
@@ -64,6 +67,21 @@ const Dashboard = () => {
       })
       .finally(() => setLoadingBench(false));
   };
+
+  if (initialLoading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#2f3b4a' }}>
+        <div style={{ width: '48px', height: '48px', border: '6px solid #fff', borderTop: '6px solid #007bff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+        <div style={{ color: '#fff', marginTop: '18px', fontSize: '18px', fontWeight: 500 }}>Loading Dashboard...</div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
 
   return (
     <section className="dashboard-section">
