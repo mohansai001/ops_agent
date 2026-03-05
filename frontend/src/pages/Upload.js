@@ -9,7 +9,7 @@ const Upload = ({
 }) => {
   // State for rrf_id dropdown and analysis results
   const [rrfIdList, setRrfIdList] = useState([]);
-  const [selectedRrfId, setSelectedRrfId] = useState(null);
+  const [selectedRrfIds, setSelectedRrfIds] = useState([]);
   const [analyzeResults, setAnalyzeResults] = useState([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [error, setError] = useState(null);
@@ -28,26 +28,30 @@ const Upload = ({
 
   // Analyze candidates for selected RRF ID
   const handleAnalyzeRrf = async () => {
-    if (!selectedRrfId) return;
+    if (!selectedRrfIds || selectedRrfIds.length === 0) return;
     setAnalyzing(true);
     setAnalyzeResults([]);
     setError(null);
+    let allResults = [];
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/match_candidate/${selectedRrfId}`);
-      console.log('API response for match_candidate:', response.data);
-      let results = [];
-      // Handle nested ai_matching.ai_matching.recommended_candidates
-      if (response.data && response.data.ai_matching && response.data.ai_matching.ai_matching && Array.isArray(response.data.ai_matching.ai_matching.recommended_candidates)) {
-        results = response.data.ai_matching.ai_matching.recommended_candidates;
-      } else if (Array.isArray(response.data.candidates)) {
-        results = response.data.candidates;
-      } else if (Array.isArray(response.data.matches)) {
-        results = response.data.matches;
-      } else if (response.data && response.data.matching) {
-        results = response.data.matching;
+      for (const rrfId of selectedRrfIds) {
+        const response = await axios.get(`http://127.0.0.1:8000/match_candidate/${rrfId}`);
+        let results = [];
+        if (response.data && response.data.ai_matching && response.data.ai_matching.ai_matching && Array.isArray(response.data.ai_matching.ai_matching.recommended_candidates)) {
+          results = response.data.ai_matching.ai_matching.recommended_candidates;
+        } else if (Array.isArray(response.data.candidates)) {
+          results = response.data.candidates;
+        } else if (Array.isArray(response.data.matches)) {
+          results = response.data.matches;
+        } else if (response.data && response.data.matching) {
+          results = response.data.matching;
+        }
+  allResults.push(response.data);
+        console.log(`Full API response for RRF ID ${rrfId}:`, response.data);
+        console.log(`Results for RRF ID ${rrfId}:`, results);
       }
-      setAnalyzeResults(results);
-      console.log('Parsed results:', results);
+      setAnalyzeResults(allResults);
+      console.log('All analysis results:', allResults);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to analyze candidates');
     } finally {
@@ -107,6 +111,30 @@ const Upload = ({
             ✓ {benchCount} Bench employee(s) loaded in database
           </div>
         )}
+        {/* Bench People Table */}
+        {benchFile && benchFile.data && Array.isArray(benchFile.data) && benchFile.data.length > 0 && (
+          <div className="bench-table-container" style={{ marginTop: '1rem' }}>
+            <h4>Bench People Table</h4>
+            <table className="bench-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  <th style={{ border: '1px solid #ccc', padding: '6px' }}>Name</th>
+                  <th style={{ border: '1px solid #ccc', padding: '6px' }}>Skill</th>
+                  <th style={{ border: '1px solid #ccc', padding: '6px' }}>Grade</th>
+                </tr>
+              </thead>
+              <tbody>
+                {benchFile.data.map((person, idx) => (
+                  <tr key={idx}>
+                    <td style={{ border: '1px solid #eee', padding: '6px' }}>{person.name || '-'}</td>
+                    <td style={{ border: '1px solid #eee', padding: '6px' }}>{person.skill || '-'}</td>
+                    <td style={{ border: '1px solid #eee', padding: '6px' }}>{person.grade || '-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
     {/* RRF ID Analyze Section: always show if rrfIdList is available */}
@@ -116,11 +144,12 @@ const Upload = ({
         <div className="analyze-controls">
           <Select
             options={rrfIdList.map(id => ({ value: id, label: id }))}
-            value={selectedRrfId ? { value: selectedRrfId, label: selectedRrfId } : null}
-            onChange={option => setSelectedRrfId(option ? option.value : null)}
+            value={selectedRrfIds.map(id => ({ value: id, label: id }))}
+            onChange={options => setSelectedRrfIds(options ? options.map(opt => opt.value) : [])}
+            isMulti
             isClearable
             isSearchable
-            placeholder="Select or search RRF ID..."
+            placeholder="Select or search RRF ID(s)..."
             classNamePrefix="react-select"
             styles={{ container: base => ({ ...base, minWidth: 220 }) }}
             isDisabled={analyzing || rrfIdList.length === 0}
@@ -128,7 +157,7 @@ const Upload = ({
           <button
             className="btn-primary styled-analyze-btn"
             onClick={handleAnalyzeRrf}
-            disabled={analyzing || !selectedRrfId}
+            disabled={analyzing || selectedRrfIds.length === 0}
           >
             {analyzing ? 'Analyzing...' : 'Analyze'}
           </button>
@@ -137,27 +166,56 @@ const Upload = ({
         {error && <div className="analyze-error">{error}</div>}
         {analyzeResults.length > 0 && (
           <div className="analyze-results-table">
-            <h4>Analysis Results for RRF ID: {selectedRrfId}</h4>
-            <table className="analyze-table">
-              <thead>
-                <tr>
-                  <th>VAM ID</th>
-                  <th>Skill</th>
-                  <th>Score</th>
-                  <th>Reasoning</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analyzeResults.map((candidate, idx) => (
-                  <tr key={idx}>
-                    <td>{candidate.vamid || '-'}</td>
-                    <td>{candidate.skill_alignment || candidate.skill || '-'}</td>
-                    <td>{candidate.match_score || candidate.score || '-'}</td>
-                    <td>{candidate.reasoning || '-'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {analyzeResults.map((result, idx) => (
+              <div key={idx} style={{ marginBottom: '2rem', border: '1px solid #e5e7eb', borderRadius: 8, padding: 16 }}>
+                {/* Show RRF Details */}
+                {result.rrf_details && (
+                  <div style={{ marginBottom: '1rem' }}>
+                    <h4>RRF Details</h4>
+                    <div><strong>RRF ID:</strong> {result.rrf_details.rrf_id}</div>
+                    <div><strong>Account:</strong> {result.rrf_details.account}</div>
+                    <div><strong>Position Title:</strong> {result.rrf_details.pos_title}</div>
+                    <div><strong>Role:</strong> {result.rrf_details.role}</div>
+                  </div>
+                )}
+                {/* Show POS-ID and Position Name above candidates table */}
+                <div style={{ marginBottom: '0.5rem', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                  POS-ID: {result.rrf_details?.rrf_id || (result.results && result.results[0]?.rrf_id) || '-'}
+                  {' | '}Position Name: {result.rrf_details?.pos_title || (result.results && result.results[0]?.rrf_details?.pos_title) || '-'}
+                </div>
+                <h4>Recommended Candidates</h4>
+                <table className="analyze-table">
+                  <thead>
+                    <tr>
+                      <th>VAM ID</th>
+                      <th>Name</th>
+                      <th>Skill</th>
+                      <th>Score</th>
+                      <th>Reasoning</th>
+                      <th>Potential Gaps</th>
+                      <th>Designation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(
+                      result.matching_result?.ai_matching?.recommended_candidates
+                      || (Array.isArray(result.results) && result.results[0]?.matching_result?.ai_matching?.recommended_candidates)
+                      || []
+                    ).map((candidate, cidx) => (
+                      <tr key={cidx}>
+                        <td>{candidate.vamid || '-'}</td>
+                        <td>{candidate.employee_details?.name || '-'}</td>
+                        <td>{candidate.skill_alignment || candidate.employee_details?.primary_skill || candidate.employee_details?.current_skill || '-'}</td>
+                        <td>{candidate.match_score || '-'}</td>
+                        <td>{candidate.reasoning || '-'}</td>
+                        <td>{Array.isArray(candidate.potential_gaps) ? candidate.potential_gaps.join(', ') : '-'}</td>
+                        <td>{candidate.employee_details?.designation || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -169,53 +227,11 @@ const Upload = ({
         <div className="analyze-section" style={{ marginBottom: 32 }}>
           <h3>Analyze Candidates by RRF ID</h3>
           <div className="analyze-controls" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <select
-              value={selectedRrfId}
-              onChange={e => setSelectedRrfId(e.target.value)}
-              disabled={analyzing || rrfIdList.length === 0}
-              style={{ minWidth: 180 }}
-            >
-              <option value="">Select RRF ID</option>
-              {rrfIdList.map(rrfId => (
-                <option key={rrfId} value={rrfId}>{rrfId}</option>
-              ))}
-            </select>
-            <button
-              className="btn-primary"
-              onClick={handleAnalyzeRrf}
-              disabled={analyzing || !selectedRrfId}
-              style={{ minWidth: 120 }}
-            >
-              {analyzing ? 'Analyzing...' : 'Analyze'}
-            </button>
+            {/* Multi-select dropdown and analyze button are already implemented above. Remove legacy single-select code. */}
           </div>
           {/* Results Table */}
           {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
-          {analyzeResults.length > 0 && (
-            <div className="analyze-results-table" style={{ marginTop: 16 }}>
-              <h4>Analysis Results for RRF ID: {selectedRrfId}</h4>
-              <table className="analyze-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr>
-                    <th style={{ border: '1px solid #ccc', padding: '6px' }}>Name</th>
-                    <th style={{ border: '1px solid #ccc', padding: '6px' }}>Skill</th>
-                    <th style={{ border: '1px solid #ccc', padding: '6px' }}>Score</th>
-                    <th style={{ border: '1px solid #ccc', padding: '6px' }}>Reasoning</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {analyzeResults.map((candidate, idx) => (
-                    <tr key={idx}>
-                      <td style={{ border: '1px solid #eee', padding: '6px' }}>{candidate.name || candidate.vamid || '-'}</td>
-                      <td style={{ border: '1px solid #eee', padding: '6px' }}>{candidate.skill || '-'}</td>
-                      <td style={{ border: '1px solid #eee', padding: '6px' }}>{candidate.score || '-'}</td>
-                      <td style={{ border: '1px solid #eee', padding: '6px' }}>{candidate.reasoning || '-'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          {/* Removed legacy candidate table. Only the correct results table above is rendered. */}
         </div>
         <h3>Candidate Matching</h3>
         <div className="matching-info-inline">

@@ -56,7 +56,12 @@ const Dashboard = () => {
         let arr = [];
         if (Array.isArray(res.data)) arr = res.data;
         else if (res.data && Array.isArray(res.data.candidates)) arr = res.data.candidates;
-        setBenchRows(arr.map(c => ({ vamid: c.vamid, name: c.name })));
+        setBenchRows(arr.map(c => ({
+          vamid: c.vamid,
+          name: c.name,
+          skill: c.primary_skill || c.current_skill || '-',
+          grade: c.grade
+        })));
         setShowBenchTable(true);
         setShowRrfTable(false);
       })
@@ -150,16 +155,20 @@ const Dashboard = () => {
                 <tr>
                   <th>VAM ID</th>
                   <th>Name</th>
+                  <th>Skill</th>
+                  <th>Grade</th>
                 </tr>
               </thead>
               <tbody>
                 {benchRows.length === 0 ? (
-                  <tr><td colSpan="2">No Bench People found.</td></tr>
+                  <tr><td colSpan="4">No Bench People found.</td></tr>
                 ) : (
                   benchRows.map((row, idx) => (
                     <tr key={row.vamid || idx}>
                       <td>{row.vamid}</td>
                       <td>{row.name}</td>
+                      <td>{row.skill}</td>
+                      <td>{row.grade}</td>
                     </tr>
                   ))
                 )}

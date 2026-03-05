@@ -241,16 +241,49 @@ function App() {
   
   // Remove hash/activeSection logic
 
+
+  // Helper to format Excel serial dates to YYYY-MM-DD
+  function excelDateToJSDate(serial) {
+    if (!serial || isNaN(serial)) return '';
+    const utc_days = Math.floor(serial - 25569);
+    const utc_value = utc_days * 86400;
+    const date_info = new Date(utc_value * 1000);
+    return date_info.toISOString().split('T')[0];
+  }
+
   const handleDownloadExcel = async () => {
     if (matches.length === 0) {
       alert('No matching results to download. Please run matching first.');
       return;
     }
 
+    // Format project start/end dates before sending to backend
+    const formattedMatches = matches.map(match => {
+      const rrf = { ...match.rrf };
+      // Format date fields if present
+      if (rrf.project_start_date) {
+        rrf.project_start_date = excelDateToJSDate(rrf.project_start_date);
+      }
+      if (rrf.project_end_date) {
+        rrf.project_end_date = excelDateToJSDate(rrf.project_end_date);
+      }
+      // Also check for other possible date fields
+      if (rrf.start_date) {
+        rrf.start_date = excelDateToJSDate(rrf.start_date);
+      }
+      if (rrf.end_date) {
+        rrf.end_date = excelDateToJSDate(rrf.end_date);
+      }
+      return {
+        ...match,
+        rrf,
+      };
+    });
+
     try {
       const response = await axios.post(
         `${API_BASE_URL}/download-matches`,
-        { matches },
+        { matches: formattedMatches },
         {
           responseType: 'blob',
         }
@@ -367,9 +400,6 @@ function App() {
               </Link>
               <Link to="/upload" className="nav-item" title="Upload Files">
                 {sidebarCollapsed ? '⬆️' : 'Upload Files'}
-              </Link>
-              <Link to="/matches" className="nav-item" title="Matches">
-                {sidebarCollapsed ? '🔗' : 'Matches'}
               </Link>
               <Link to="/project-feedback" className="nav-item" title="Project Feedback">
                 {sidebarCollapsed ? '📝' : 'Project Feedback'}
