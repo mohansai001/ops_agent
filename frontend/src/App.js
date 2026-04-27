@@ -19,7 +19,7 @@ import Trends from './pages/Trends';
 import NotFound from './pages/NotFound';
 import ProjectFeedback from './pages/ProjectFeedback';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
 
 function App() {
   // Use React Router's location to determine the current route
