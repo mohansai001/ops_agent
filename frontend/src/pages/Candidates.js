@@ -5,6 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 import axios from 'axios';
+import API_BASE from '../config';
 import Loader from '../components/Loader';
 import './Candidates.css';
 
@@ -19,8 +20,8 @@ const Candidates = ({ statuses, handleCandidateTableChange, handleCandidateSave 
 
   useEffect(() => {
     Promise.all([
-      axios.get('http://127.0.0.1:8000/candidates'),
-      axios.get('http://127.0.0.1:8000/rrf')
+      axios.get(`${API_BASE}/candidates`),
+      axios.get(`${API_BASE}/rrf`)
     ]).then(([candidatesRes, rrfRes]) => {
       let arr = [];
       if (Array.isArray(candidatesRes.data)) {
@@ -81,7 +82,7 @@ const Candidates = ({ statuses, handleCandidateTableChange, handleCandidateSave 
   // Save handler
   const handleSave = (row) => {
     if (row.position && row.vamid) {
-      axios.post(`http://127.0.0.1:8000/update_position/${row.position}/${row.vamid}`)
+      axios.post(`${API_BASE}/update_position/${row.position}/${row.vamid}`)
         .then(() => {
           toast.success('Position updated successfully!');
           setTimeout(() => window.location.reload(), 1200);

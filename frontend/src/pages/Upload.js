@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import Loader from '../components/Loader';
+import { MdCloudUpload } from 'react-icons/md';
+import API_BASE from '../config';
 import './Upload.css';
 import axios from 'axios';
 
@@ -17,7 +19,7 @@ const Upload = ({
 
   // Fetch RRF IDs for dropdown
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/rrf')
+    axios.get(`${API_BASE}/rrf`)
       .then(res => {
         let rrfList = Array.isArray(res.data) ? res.data : (res.data.rrf || []);
         setRrfIdList([...new Set(rrfList.map(r => r.rrf_id).filter(Boolean))]);
@@ -35,7 +37,7 @@ const Upload = ({
     let allResults = [];
     try {
       for (const rrfId of selectedRrfIds) {
-        const response = await axios.get(`http://127.0.0.1:8000/match_candidate/${rrfId}`);
+        const response = await axios.get(`${API_BASE}/match_candidate/${rrfId}`);
         let results = [];
         if (response.data && response.data.ai_matching && response.data.ai_matching.ai_matching && Array.isArray(response.data.ai_matching.ai_matching.recommended_candidates)) {
           results = response.data.ai_matching.ai_matching.recommended_candidates;
@@ -53,7 +55,13 @@ const Upload = ({
       setAnalyzeResults(allResults);
       console.log('All analysis results:', allResults);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to analyze candidates');
+      const status = err.response?.status;
+      const errMsg = err.response?.data?.error || err.response?.data?.detail || err.message || '';
+      if (status === 429 || errMsg.toLowerCase().includes('quota') || errMsg.toLowerCase().includes('exhausted') || errMsg.toLowerCase().includes('rate limit')) {
+        setError('⚠️ Gemini API quota exhausted. Please wait a few minutes and try again, or check your API usage limits.');
+      } else {
+        setError(errMsg || 'Failed to analyze candidates');
+      }
     } finally {
       setAnalyzing(false);
     }
@@ -77,9 +85,10 @@ const Upload = ({
               accept=".xlsx,.xls"
               onChange={handleRrfUpload}
               disabled={!!uploadingRrf}
-              className="upload-file-btn"
+              style={{ display: 'none' }}
             />
-            <span className="upload-file-label">{uploadingRrf ? 'Uploading...' : rrfFile ? rrfFile.name : 'Choose RRF File'}</span>
+            <MdCloudUpload size={20} />
+            <span>{uploadingRrf ? 'Uploading...' : rrfFile ? rrfFile.name : 'Choose RRF File'}</span>
           </label>
         </div>
         {rrfCount > 0 && (
@@ -101,9 +110,10 @@ const Upload = ({
               accept=".xlsx,.xls"
               onChange={handleBenchUpload}
               disabled={!!uploadingBench}
-              className="upload-file-btn"
+              style={{ display: 'none' }}
             />
-            <span className="upload-file-label">{uploadingBench ? 'Uploading...' : benchFile ? benchFile.name : 'Choose Bench File'}</span>
+            <MdCloudUpload size={20} />
+            <span>{uploadingBench ? 'Uploading...' : benchFile ? benchFile.name : 'Choose Bench File'}</span>
           </label>
         </div>
         {benchCount > 0 && (

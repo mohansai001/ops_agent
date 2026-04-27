@@ -1,158 +1,39 @@
-/* Make file input buttons visible and styled */
-.upload-file-btn {
-  opacity: 0;
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  cursor: pointer;
-}
-.file-input-label {
-  position: relative;
-  display: inline-block;
-  width: 220px;
-  height: 48px;
-  background: #f0f4f8;
-  border-radius: 8px;
-  text-align: center;
-  line-height: 48px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #007bff;
-  cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  margin-top: 18px;
-  margin-bottom: 8px;
-  border: 1px solid #e3e3e3;
-  transition: background 0.2s, color 0.2s;
-}
-.file-input-label:hover {
-  background: #e3eaf3;
-  color: #0056b3;
-}
-.upload-file-label {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  color: #007bff;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 48px;
-  opacity: 1;
-}
-.upload-file-btn:disabled + .upload-file-label {
-  color: #bbb;
-  background: #f7f7f7;
-  cursor: not-allowed;
-}
-/* Upload page custom styles for dropdown and table */
+/* Upload page — inherits from App.css */
+.upload-section { padding: 0; }
+
 .analyze-section {
-  margin-bottom: 32px;
-  background: #f7f9fa;
-  border-radius: 8px;
-  padding: 24px 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-.analyze-controls {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 12px;
-}
-.dropdown-search {
-  padding: 7px 12px;
-  border-radius: 6px;
-  border: 1px solid #bbb;
-  font-size: 15px;
-  width: 180px;
-}
-.styled-dropdown {
-  padding: 7px 12px;
-  border-radius: 6px;
-  border: 1px solid #bbb;
-  font-size: 15px;
   background: #fff;
-  min-width: 180px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
 }
-.styled-analyze-btn {
-  padding: 7px 18px;
-  border-radius: 6px;
-  font-size: 15px;
-  background: #007bff;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.styled-analyze-btn:disabled {
-  background: #b3d1ff;
-  cursor: not-allowed;
-}
-.analyze-results-table {
-  margin-top: 18px;
-}
+.analyze-section h3 { font-size: 0.95rem; font-weight: 700; color: #0f1f3d; margin-bottom: 14px; }
+.analyze-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.analyze-error { color: #dc2626; font-size: 0.82rem; margin-top: 8px; }
+.analyze-results-table { margin-top: 16px; overflow-x: auto; }
+.analyze-results-table h4 { font-size: 0.875rem; font-weight: 700; color: #0f1f3d; margin-bottom: 10px; }
+
 .analyze-table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
-}
-.analyze-table th, .analyze-table td {
-  border: 1px solid #e3e3e3;
-  padding: 10px 8px;
-  text-align: left;
-  font-size: 15px;
+  font-size: 0.875rem;
 }
 .analyze-table th {
-  background: #f0f4f8;
+  background: #f8fafc;
+  color: #475569;
   font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
 }
-.analyze-table tr:nth-child(even) {
-  background: #f9fbfc;
+.analyze-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
 }
-.analyze-error {
-  color: #d32f2f;
-  margin-top: 8px;
-  font-size: 15px;
-}/* Upload page styles */
-.upload-section {
-  padding: 2rem;
-}
-.upload-grid {
-  display: flex;
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-.upload-card {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  padding: 1.5rem 2rem;
-  min-width: 260px;
-}
-.upload-description {
-  color: #666;
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
-}
-.upload-controls {
-  margin-bottom: 1rem;
-}
-.file-input-label {
-  display: inline-block;
-  background: #f7f7f7;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.upload-status {
-  color: #28a745;
-  font-weight: 600;
-  margin-top: 0.5rem;
-}
+.analyze-table tbody tr:hover td { background: #f8fafc; }

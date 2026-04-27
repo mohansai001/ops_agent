@@ -4,7 +4,12 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import './App.css';
 import logo from './assets/ValueMomentum_logo.png';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import {
+  MdDashboard, MdPeople, MdUploadFile,
+  MdFeedback, MdChevronLeft, MdChevronRight
+} from 'react-icons/md';
+import API_BASE from './config';
 import Dashboard from './pages/Dashboard';
 import Candidates from './pages/Candidates';
 import Upload from './pages/Upload';
@@ -14,7 +19,7 @@ import Trends from './pages/Trends';
 import NotFound from './pages/NotFound';
 import ProjectFeedback from './pages/ProjectFeedback';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
 
 function App() {
   // Use React Router's location to determine the current route
@@ -98,10 +103,8 @@ function App() {
     formData.append('rrf_file', file);
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/upload-files', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await axios.post(`${API_BASE}/upload-files`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       if (response.data.success) {
         setWarnings([]);
@@ -122,19 +125,14 @@ function App() {
   const handleBenchUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     setBenchFile(file);
     setUploadingBench(true);
     setError(null);
-
     const formData = new FormData();
     formData.append('bench_file', file);
-
     try {
-      const response = await axios.post('http://127.0.0.1:8000/upload-files', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      const response = await axios.post(`${API_BASE}/upload-files`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       if (response.data.success) {
         setWarnings([]);
@@ -153,14 +151,11 @@ function App() {
   };
 
   const handleMatchCandidates = async () => {
-
-
     setMatching(true);
     setError(null);
     setMatches([]);
-
     try {
-      const response = await axios.get('http://127.0.0.1:8000/matching');
+      const response = await axios.get(`${API_BASE}/matching`);
       // Support new API response structure
       let matches = [];
       if (response.data && response.data.ai_matching && response.data.ai_matching.gemini_analysis && Array.isArray(response.data.ai_matching.gemini_analysis.matches)) {
@@ -360,16 +355,10 @@ function App() {
 
   if (loading) {
     return (
-      <div className="global-loader" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#2f3b4a' }}>
-        <img src={logo} alt="ValueMomentum Logo" style={{ height: '48px', marginBottom: '24px' }} />
-        <div className="spinner" style={{ width: '48px', height: '48px', border: '6px solid #fff', borderTop: '6px solid #007bff', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-        <div style={{ color: '#fff', marginTop: '18px', fontSize: '18px', fontWeight: 500 }}>Loading...</div>
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: '#0f1f3d', gap: '16px' }}>
+        <div style={{ width: '40px', height: '40px', border: '4px solid rgba(255,255,255,0.15)', borderTop: '4px solid #3b82f6', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
+        <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', fontWeight: 500 }}>Loading...</div>
+        <style>{`@keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }`}</style>
       </div>
     );
   }
@@ -380,74 +369,99 @@ function App() {
         <ToastContainer position="top-right" autoClose={1200} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
         <div className={`sidebar${sidebarCollapsed ? ' collapsed' : ''}`}>
           <div className="sidebar-header">
-            <img src={logo} alt="ValueMomentum Logo" style={{ height: '48px', marginBottom: '12px', display: sidebarCollapsed ? 'none' : 'block' }} />
-            <h2 style={{ display: sidebarCollapsed ? 'none' : 'block' }}></h2>
+            {!sidebarCollapsed && (
+              <img src={logo} alt="ValueMomentum Logo" style={{ height: '36px' }} />
+            )}
             <button
               className="sidebar-toggle"
               onClick={() => setSidebarCollapsed((prev) => !prev)}
               aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              style={{ marginLeft: sidebarCollapsed ? 0 : 'auto', marginRight: 0 }}
             >
-              {sidebarCollapsed ? '→' : '←'}
+              {sidebarCollapsed ? <MdChevronRight size={20} /> : <MdChevronLeft size={20} />}
             </button>
           </div>
           <nav className="sidebar-nav">
-              <Link to="/dashboard" className="nav-item" title="Dashboard">
-                {sidebarCollapsed ? '🏠' : 'Dashboard'}
-              </Link>
-              <Link to="/candidates" className="nav-item" title="Candidates">
-                {sidebarCollapsed ? '👤' : 'Candidates'}
-              </Link>
-              <Link to="/upload" className="nav-item" title="Upload Files">
-                {sidebarCollapsed ? '⬆️' : 'Upload Files'}
-              </Link>
-              <Link to="/project-feedback" className="nav-item" title="Project Feedback">
-                {sidebarCollapsed ? '📝' : 'Project Feedback'}
-              </Link>
+            <Link to="/dashboard" className="nav-item" title="Dashboard">
+              <MdDashboard size={20} />{!sidebarCollapsed && 'Dashboard'}
+            </Link>
+            <Link to="/candidates" className="nav-item" title="Candidates">
+              <MdPeople size={20} />{!sidebarCollapsed && 'Candidates'}
+            </Link>
+            <Link to="/upload" className="nav-item" title="Upload Files">
+              <MdUploadFile size={20} />{!sidebarCollapsed && 'Upload Files'}
+            </Link>
+            <Link to="/project-feedback" className="nav-item" title="Project Feedback">
+              <MdFeedback size={20} />{!sidebarCollapsed && 'Project Feedback'}
+            </Link>
           </nav>
         </div>
         <div className="main-content">
           <div className="content">
-            {/* Header is now rendered only inside the Dashboard route below */}
-            {error && (
-                  <div className="error-banner">
-                    <strong>Error:</strong> {error}
-                  </div>
-                )}
-                {warnings.length > 0 && (
-                  <div className="warning-banner">
-                    <strong>Warnings:</strong>
-                    <ul>
-                      {warnings.slice(0, 5).map((warning, idx) => (
-                        <li key={idx}>{warning}</li>
-                      ))}
-                      {warnings.length > 5 && <li>... and {warnings.length - 5} more warnings</li>}
-                    </ul>
-                  </div>
-                )}
+            {error && <div className="error-banner"><strong>Error:</strong> {error}</div>}
+            {warnings.length > 0 && (
+              <div className="warning-banner">
+                <strong>Warnings:</strong>
+                <ul>
+                  {warnings.slice(0, 5).map((warning, idx) => <li key={idx}>{warning}</li>)}
+                  {warnings.length > 5 && <li>... and {warnings.length - 5} more warnings</li>}
+                </ul>
+              </div>
+            )}
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={
                 <>
-                  <header className="header">
-                    <h1>Operations Dashboard</h1>
-                    <p className="subtitle">Automated RRF Allocation System</p>
-                  </header>
-                  <Dashboard rrfCount={rrfCount} benchCount={benchCount} />
+                  <div className="header">
+                    <div>
+                      <h1>Operations Dashboard</h1>
+                      <p className="subtitle">Automated RRF Allocation System</p>
+                    </div>
+                  </div>
+                  <div style={{padding:'28px 32px'}}><Dashboard rrfCount={rrfCount} benchCount={benchCount} /></div>
                 </>
               } />
-              <Route path="/candidates" element={<Candidates candidatesTableData={candidatesTableData} positions={positions} statuses={statuses} accounts={accounts} handleCandidateTableChange={handleCandidateTableChange} handleCandidateSave={handleCandidateSave} />} />
-              <Route path="/upload" element={<Upload rrfFile={rrfFile} benchFile={benchFile} uploadingRrf={uploadingRrf} uploadingBench={uploadingBench} rrfCount={rrfCount} benchCount={benchCount} handleRrfUpload={handleRrfUpload} handleBenchUpload={handleBenchUpload} useEnhancedMatching={useEnhancedMatching} setUseEnhancedMatching={setUseEnhancedMatching} handleMatchCandidates={handleMatchCandidates} matching={matching} matches={matches} handleDownloadExcel={handleDownloadExcel} />} />
-              <Route path="/matches" element={<Matches rrfCount={rrfCount} benchCount={benchCount} useEnhancedMatching={useEnhancedMatching} setUseEnhancedMatching={setUseEnhancedMatching} handleMatchCandidates={handleMatchCandidates} matching={matching} matches={matches} handleDownloadExcel={handleDownloadExcel} />} />
-              <Route path="/history" element={<History historyData={uploadHistory} />} />
-              <Route path="/trends" element={<Trends trendsData={trends ? [
-                { label: 'Current RRFs', value: trends.current?.rrfCount },
-                { label: 'Current Bench', value: trends.current?.benchCount },
-                { label: 'Unique RRFs Matched (30d)', value: trends.matching?.unique_rrfs_matched },
-                { label: 'Total Matches (30d)', value: trends.matching?.total_matches },
-                { label: 'Avg Match Score (30d)', value: trends.matching?.avg_match_score ? Math.round(trends.matching.avg_match_score * 100) / 100 : 'N/A' }
-              ] : []} />} />
-              <Route path="/project-feedback" element={<ProjectFeedback />} />
+              <Route path="/candidates" element={
+                <>
+                  <div className="header"><h1>Candidates</h1></div>
+                  <div style={{padding:'28px 32px'}}><Candidates candidatesTableData={candidatesTableData} positions={positions} statuses={statuses} accounts={accounts} handleCandidateTableChange={handleCandidateTableChange} handleCandidateSave={handleCandidateSave} /></div>
+                </>
+              } />
+              <Route path="/upload" element={
+                <>
+                  <div className="header"><h1>Upload Files</h1></div>
+                  <div style={{padding:'28px 32px'}}><Upload rrfFile={rrfFile} benchFile={benchFile} uploadingRrf={uploadingRrf} uploadingBench={uploadingBench} rrfCount={rrfCount} benchCount={benchCount} handleRrfUpload={handleRrfUpload} handleBenchUpload={handleBenchUpload} useEnhancedMatching={useEnhancedMatching} setUseEnhancedMatching={setUseEnhancedMatching} handleMatchCandidates={handleMatchCandidates} matching={matching} matches={matches} handleDownloadExcel={handleDownloadExcel} /></div>
+                </>
+              } />
+              <Route path="/matches" element={
+                <>
+                  <div className="header"><h1>Candidate Matches</h1></div>
+                  <div style={{padding:'28px 32px'}}><Matches rrfCount={rrfCount} benchCount={benchCount} useEnhancedMatching={useEnhancedMatching} setUseEnhancedMatching={setUseEnhancedMatching} handleMatchCandidates={handleMatchCandidates} matching={matching} matches={matches} handleDownloadExcel={handleDownloadExcel} /></div>
+                </>
+              } />
+              <Route path="/history" element={
+                <>
+                  <div className="header"><h1>Upload History</h1></div>
+                  <div style={{padding:'28px 32px'}}><History historyData={uploadHistory} /></div>
+                </>
+              } />
+              <Route path="/trends" element={
+                <>
+                  <div className="header"><h1>Trends & Analytics</h1></div>
+                  <div style={{padding:'28px 32px'}}><Trends trendsData={trends ? [
+                    { label: 'Current RRFs', value: trends.current?.rrfCount },
+                    { label: 'Current Bench', value: trends.current?.benchCount },
+                    { label: 'Unique RRFs Matched (30d)', value: trends.matching?.unique_rrfs_matched },
+                    { label: 'Total Matches (30d)', value: trends.matching?.total_matches },
+                    { label: 'Avg Match Score (30d)', value: trends.matching?.avg_match_score ? Math.round(trends.matching.avg_match_score * 100) / 100 : 'N/A' }
+                  ] : []} /></div>
+                </>
+              } />
+              <Route path="/project-feedback" element={
+                <>
+                  <div className="header"><h1>Project Feedback</h1></div>
+                  <div style={{padding:'28px 32px'}}><ProjectFeedback /></div>
+                </>
+              } />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
