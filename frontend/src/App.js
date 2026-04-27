@@ -23,6 +23,7 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api
 
 function App() {
   // Use React Router's location to determine the current route
+  // eslint-disable-next-line no-unused-vars
   const location = typeof window !== 'undefined' && window.location ? { pathname: window.location.pathname } : { pathname: '/' };
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [rrfCount, setRrfCount] = useState(0);
@@ -43,7 +44,7 @@ function App() {
   // For Candidates Table
   const [candidatesTableData, setCandidatesTableData] = useState([]);
   const [positions, setPositions] = useState([]);
-  const [statuses, setStatuses] = useState(['Available', 'Matched', 'On Hold', 'Closed']);
+  const [statuses] = useState(['Available', 'Matched', 'On Hold', 'Closed']);
   const [accounts, setAccounts] = useState([]);
   // Fetch bench candidates, positions, and accounts for Candidates table
   // Fetch bench candidates, positions, and accounts for Candidates table

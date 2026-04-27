@@ -13,7 +13,7 @@ import './Candidates.css';
 const Candidates = ({ statuses, handleCandidateTableChange, handleCandidateSave }) => {
   const [candidatesTableData, setCandidatesTableData] = useState([]);
   const [positions, setPositions] = useState([]); // Will hold rrf_id list
-  const [accounts, setAccounts] = useState([]);
+  const [accounts, setAccounts] = useState([]); // eslint-disable-line no-unused-vars
   const [rrfMap, setRrfMap] = useState({}); // rrf_id -> rrf object
   const [loading, setLoading] = useState(true);
   // No need for rrfSearch with react-select

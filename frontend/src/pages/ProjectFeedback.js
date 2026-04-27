@@ -11,6 +11,7 @@ const ProjectFeedback = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCards, setSelectedCards] = useState([]);
 
+  // eslint-disable-next-line no-unused-vars
   const GRID_COLUMNS = [
     "Associate Name",
     "Please specify the skill category"
